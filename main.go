@@ -38,7 +38,7 @@ func serverHandler() {
 
 func main() {
 
-	flag.IntVar(&port, "p", 443, "server port")
+	flag.IntVar(&port, "p", 8443, "server port")
 	flag.StringVar(&server, "s", "", "server address")
 	flag.StringVar(&typ, "t", "client", "programe type client/server")
 
