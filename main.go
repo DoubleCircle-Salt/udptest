@@ -11,6 +11,7 @@ var (
 	port   int
 	server string
 	typ    string
+	count  int
 )
 
 func serverHandler() {
@@ -42,6 +43,7 @@ func main() {
 	flag.IntVar(&port, "p", 8443, "server port")
 	flag.StringVar(&server, "s", "", "server address")
 	flag.StringVar(&typ, "t", "client", "programe type client/server")
+	flag.IntVar(&count, "c", 1, "count")
 
 
 	flag.Parse()
@@ -68,6 +70,7 @@ func main() {
 		return
 	}
 
+	for {}
 	startTime := time.Now()
 	_, err = packetConn.WriteTo([]byte("request"), udpAddr)
 	if err != nil {
