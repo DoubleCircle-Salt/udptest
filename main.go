@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"net"
 )
 
 var (
@@ -9,6 +11,30 @@ var (
 	server string
 	typ    string
 )
+
+func serverHandler() {
+	packetConn, err := net.ListenPacket("udp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		println("listen packet failed, err:", err.Error())
+		return
+	}
+
+	for {
+		buf := make([]byte, 4096)
+		n, src, err := packetConn.ReadFrom(buf)
+		if err != nil {
+			println("read packet failed, err:", err.Error())
+			return
+		}
+		println("read packet:", string(buf[:n]))
+
+		_, err = packetConn.WriteTo([]byte("response"), src)
+		if err != nil {
+			println("write packet failed, err:", err.Error())
+			return
+		}
+	}
+}
 
 func main() {
 
@@ -28,4 +54,6 @@ func main() {
 		println("with no server")
 		return
 	}
+
+
 }
