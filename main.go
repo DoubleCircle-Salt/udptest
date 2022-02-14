@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"time"
 )
 
 var (
@@ -55,5 +56,33 @@ func main() {
 		return
 	}
 
+	packetConn, err := net.ListenPacket("udp", "")
+	if err != nil {
+		println("listen packet failed, err:", err.Error())
+		return
+	}
+
+	udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", server, port))
+	if err != nil {
+		println("resolve udp addr failed, err:", err.Error())
+		return
+	}
+
+	startTime := time.Now()
+	_, err = packetConn.WriteTo([]byte("request"), udpAddr)
+	if err != nil {
+		println("write packet failed, err:", err.Error())
+		return
+	}
+
+	buf := make([]byte, 4096)
+	n, _, err := packetConn.ReadFrom(buf)
+	if err != nil {
+		println("read packet failed, err:", err.Error())
+		return
+	}
+	endTime := time.Now()
+	println("read packet:", string(buf[:n]))
+	println("used time:", endTime.Sub(startTime).Milliseconds(), "ms")
 
 }
