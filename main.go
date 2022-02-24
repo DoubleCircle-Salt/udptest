@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -82,11 +83,11 @@ func main() {
 		packetConn.SetReadDeadline(time.Now().Add(3 * time.Second))
 		n, _, err := packetConn.ReadFrom(buf)
 		if err != nil {
-			println("read packet failed, err:", err.Error())
-			return
+			println("time:", time.Now().Format(http.TimeFormat), ", read packet failed, err:", err.Error())
+			continue
 		}
 		endTime := time.Now()
-		println("read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+		println("time:", endTime.Format(http.TimeFormat), ", read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
 
 		time.Sleep(time.Second)
 	}
