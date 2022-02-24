@@ -31,13 +31,13 @@ func serverHandler() {
 			return
 		}
 		println("read packet:", string(buf[:n]), ", src addr:", src.String())
-		go func(src net.Addr) {
-			_, err = packetConn.WriteTo([]byte("response"), src)
+		go func(src net.Addr, randstr []byte) {
+			_, err = packetConn.WriteTo(randstr, src)
 			if err != nil {
 				println("write packet failed, err:", err.Error())
 				return
 			}
-		} (src)
+		} (src, buf[:n])
 	}
 }
 
@@ -110,7 +110,7 @@ func main() {
 				endTime := time.Now()
 				restr := buf[:n]
 
-				println(endTime.Format(http.TimeFormat), ", read packet:", restr, ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+				println(endTime.Format(http.TimeFormat), ", write packet:", randstr, ", read packet:", restr, ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
 
 				time.Sleep(time.Second)
 			}
