@@ -70,7 +70,7 @@ func main() {
 		return
 	}
 
-	for i := 0; i < count; i++ {
+	for {
 		startTime := time.Now()
 		_, err = packetConn.WriteTo([]byte("request"), udpAddr)
 		if err != nil {
@@ -79,14 +79,16 @@ func main() {
 		}
 
 		buf := make([]byte, 4096)
+		packetConn.SetReadDeadline(time.Now().Add(3 * time.Second))
 		n, _, err := packetConn.ReadFrom(buf)
 		if err != nil {
 			println("read packet failed, err:", err.Error())
 			return
 		}
 		endTime := time.Now()
-		println("read packet:", string(buf[:n]))
-		println("used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+		println("read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+
+		time.Sleep(time.Second)
 	}
 
 }
