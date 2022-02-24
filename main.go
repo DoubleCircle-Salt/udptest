@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"net"
 	"net/http"
 	"time"
@@ -40,6 +41,23 @@ func serverHandler() {
 	}
 }
 
+const RANDSTR_LENGTH = 4
+
+func getRandstr() []byte {
+
+	randstr := make([]byte, RANDSTR_LENGTH)
+	for i := 0; i < RANDSTR_LENGTH; i++ {
+		randInt := rand.Intn(36)
+		if randInt < 10 {
+			randstr[i] = byte(randInt + '0')
+		} else {
+			randstr[i] = byte(randInt + 'a' - 10)
+		}
+	}
+
+	return randstr
+}
+
 func main() {
 
 	flag.IntVar(&port, "p", 8443, "server port")
@@ -75,7 +93,8 @@ func main() {
 			}
 			for {
 				startTime := time.Now()
-				_, err = packetConn.WriteTo([]byte("request"), udpAddr)
+				randstr := getRandstr()
+				_, err = packetConn.WriteTo(randstr, udpAddr)
 				if err != nil {
 					println("write packet failed, err:", err.Error())
 					return
@@ -89,7 +108,9 @@ func main() {
 					continue
 				}
 				endTime := time.Now()
-				println(endTime.Format(http.TimeFormat), ", read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+				restr := buf[:n]
+
+				println(endTime.Format(http.TimeFormat), ", read packet:", restr, ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
 
 				time.Sleep(time.Second)
 			}
