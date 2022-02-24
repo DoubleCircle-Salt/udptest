@@ -59,37 +59,41 @@ func main() {
 		return
 	}
 
-	packetConn, err := net.ListenPacket("udp", "")
-	if err != nil {
-		println("listen packet failed, err:", err.Error())
-		return
+	for i := 0; i < count; i++ {
+		go func() {
+			packetConn, err := net.ListenPacket("udp", "")
+			if err != nil {
+				println("listen packet failed, err:", err.Error())
+				return
+			}
+
+			udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", server, port))
+			if err != nil {
+				println("resolve udp addr failed, err:", err.Error())
+				return
+			}
+			for {
+				startTime := time.Now()
+				_, err = packetConn.WriteTo([]byte("request"), udpAddr)
+				if err != nil {
+					println("write packet failed, err:", err.Error())
+					return
+				}
+
+				buf := make([]byte, 4096)
+				packetConn.SetReadDeadline(time.Now().Add(3 * time.Second))
+				n, _, err := packetConn.ReadFrom(buf)
+				if err != nil {
+					println(time.Now().Format(http.TimeFormat), ", read packet failed, err:", err.Error())
+					continue
+				}
+				endTime := time.Now()
+				println(endTime.Format(http.TimeFormat), ", read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+
+				time.Sleep(time.Second)
+			}
+		}()
 	}
 
-	udpAddr, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%s:%d", server, port))
-	if err != nil {
-		println("resolve udp addr failed, err:", err.Error())
-		return
-	}
-
-	for {
-		startTime := time.Now()
-		_, err = packetConn.WriteTo([]byte("request"), udpAddr)
-		if err != nil {
-			println("write packet failed, err:", err.Error())
-			return
-		}
-
-		buf := make([]byte, 4096)
-		packetConn.SetReadDeadline(time.Now().Add(3 * time.Second))
-		n, _, err := packetConn.ReadFrom(buf)
-		if err != nil {
-			println(time.Now().Format(http.TimeFormat), ", read packet failed, err:", err.Error())
-			continue
-		}
-		endTime := time.Now()
-		println(endTime.Format(http.TimeFormat), ", read packet:", string(buf[:n]), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
-
-		time.Sleep(time.Second)
-	}
-
+	time.Sleep(365 * 24 * time.Hour)
 }
