@@ -110,7 +110,7 @@ func main() {
 				endTime := time.Now()
 				restr := buf[:n]
 
-				println(endTime.Format(http.TimeFormat), ", write packet:", randstr, ", read packet:", restr, ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
+				println(endTime.Format(http.TimeFormat), ", write packet:", string(randstr), ", read packet:", string(restr), ", used time:", endTime.Sub(startTime).Milliseconds(), "ms")
 
 				time.Sleep(time.Second)
 			}
