@@ -30,13 +30,13 @@ func serverHandler() {
 			return
 		}
 		println("read packet:", string(buf[:n]), ", src addr:", src.String())
-		go func() {
+		go func(src net.Addr) {
 			_, err = packetConn.WriteTo([]byte("response"), src)
 			if err != nil {
 				println("write packet failed, err:", err.Error())
 				return
 			}
-		} ()
+		} (src)
 	}
 }
 
